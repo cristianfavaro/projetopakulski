@@ -10,7 +10,7 @@ sextaf = False
 
 def eh_sexta():
     today = pendulum.today()
-    if today.day_of_week == 4: 
+    if today.day_of_week == 5: 
         return True
     else:
         return False
