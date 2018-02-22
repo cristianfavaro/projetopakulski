@@ -93,7 +93,7 @@ if sextaf == True:
     else:
         ativar_email = True
         subject = 'Relatório de Soja disponível no site do Imea' 
-        msg = 'Subject:{}\n\nSegue relatórios disponíveis de soja,\n\n\n'.format(subject)
+        msg = 'Subject:{}\n\nSeguem relatórios disponíveis de soja,\n\n\n'.format(subject)
         for linha in novidade:
             msg+= f"Relatório do dia {linha} está disponível\n"
 
@@ -108,7 +108,7 @@ if sextaf == True:
         server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
         server.login(gmail_acc, gmail_pass)
 
-        para = 'cfc.jornalista@gmail.com,cristianfavaroo@gmail.com'
+        para = 'cfc.jornalista@gmail.com,leticia.pakulski@estadao.com,clarice.couto@estadao.com,jane.miklasevicius@estadao.com'
 
         corpo = msg.encode('utf8')
         server.sendmail(gmail_sender, para.split(","), corpo)
