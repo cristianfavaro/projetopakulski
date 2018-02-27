@@ -102,12 +102,12 @@ def enviar_email(novidade):
         for linha in novidade:
             msg+= f"Relatório {linha} está disponível. http://www.imea.com.br/imea-site/relatorios-mercado \n"
 
-        gmail_sender = 'cristianfavaroo@gmail.com'
+        gmail_sender = 'cfc.jornalista@gmail.com'
 
         server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
         server.login(gmail_acc, gmail_pass)
 
-        para = 'cfc.jornalista@gmail.com'
+        para = os.environ.get('DESTINO_EMAIL')
 
         corpo = msg.encode('utf8')
         server.sendmail(gmail_sender, para.split(","), corpo)
