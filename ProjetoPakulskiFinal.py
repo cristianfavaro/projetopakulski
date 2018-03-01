@@ -57,7 +57,7 @@ def get_data(cat, sub):
 def limpa_pega(arquivo_json):
 	lista_compara = []
 	for d in arquivo_json:
-		lista_compara.append(f"{d['data'].strip()} {d['nome'].strip()}")
+		lista_compara.append(f"{d['data'].strip()} {d['nome'].strip()} | {d['arquivo'].strip()}")
 	return lista_compara
 
 #importando csv e transformando em dicionário
@@ -97,10 +97,10 @@ def enviar_email(novidade):
     if novidade == []:
         pass
     else:
-        subject = 'Relatório disponível no site do Imea' 
-        msg = 'Subject:{}\n\nSeguem relatórios disponíveis:,\n\n\n'.format(subject)
+        subject = 'Relatorio disponivel no site do Imea'
+        msg = 'Subject:{}\n\nSeguem relatórios disponíveis:\n\n\n'.format(subject)
         for linha in novidade:
-            msg+= f"Relatório {linha} está disponível. http://www.imea.com.br/imea-site/relatorios-mercado \n"
+            msg+= f"Relatório {linha.split(' | ')[0]} está disponível. http://www.imea.com.br/upload/publicacoes/arquivos/{linha.split(' | ')[1]} \n"
 
         gmail_sender = 'cfc.jornalista@gmail.com'
 
