@@ -93,15 +93,22 @@ def novidade(base_de_relatorio, lista_compara):
             adicionar_linha(item)
     return novidade
 
-def enviar_email(novidade):
+def enviar_email(novidade, textos=""):
     if novidade == []:
         pass
     else:
         subject = 'Relatorio disponivel no site do Imea'
         msg = 'Subject:{}\n\nSeguem relatórios disponíveis:\n\n\n'.format(subject)
         for linha in novidade:
-            msg+= f"Relatório {linha.split(' | ')[0]} está disponível. http://www.imea.com.br/upload/publicacoes/arquivos/{linha.split(' | ')[1]} \n"
-
+            msg+= f"Relatório {linha.split(' | ')[0]} está disponível. http://www.imea.com.br/upload/publicacoes/arquivos/{linha.split(' | ')[1]}\n"
+        
+        if textos == "":
+            pass
+        else:
+            msg += "\n\n"
+            msg += "Textos automatizados (conferir com tabela!):\n\n\n"
+            msg += textos
+            
         gmail_sender = 'cfc.jornalista@gmail.com'
 
         server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
@@ -145,12 +152,23 @@ def main():
 
 	dia = dia_semana()
 	if dia == 5:
+		import pega_texto_colheita_soja
+		
 		#colheita de soja
-		data = get_data(colheita_soja[0], colheita_soja[1])
-		lista_compara = limpa_pega(data)
-		base_de_relatorio = csv_import(base_k, table_n)
-		relatorios_novos = novidade(base_de_relatorio, lista_compara)
-		e_mail = enviar_email(relatorios_novos)
+        data = get_data(colheita_soja[0], colheita_soja[1])
+        lista_compara = limpa_pega(data)
+        base_de_relatorio = csv_import(base_k, table_n)
+        relatorios_novos = novidade(base_de_relatorio, lista_compara)
+        textos = ""
+        try:
+            for item in relatorios_novos:
+                url_tabela = item.split(" | ")[1]
+                titulo, text = pega_texto_colheita_soja.go_getIt(url_tabela)
+                textos += titulo
+                textos += text
+        except:
+            pass
+        e_mail = enviar_email(relatorios_novos, textos)
 
 		#colheita de milho
 		data = get_data(colheita_milho[0], colheita_milho[1])
