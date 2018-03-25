@@ -43,16 +43,20 @@ estimativa_safra_algodao = 1, 9
 #Dia da semana
 
 def dia_semana():
-    today = pendulum.today()
-    dia_semana = today.day_of_week 
-    return dia_semana
+	today = pendulum.today()
+	dia_semana = today.day_of_week 
+	return dia_semana
 
 
 #Pegar o html
+
 def get_data(cat, sub):
-    html = requests.get(f"http://www.imea.com.br/imea-site/relatorios-mercado-detalhe/buscarPublicacoes?categoria={cat}&subcategoria={sub}&page=1")
-    xpto = html.json()
-    return xpto["data"]["rows"]
+
+	
+	html = requests.get(f"http://www.imea.com.br/imea-site/relatorios-mercado-detalhe/buscarPublicacoes?categoria={cat}&subcategoria={sub}&page=1")
+	xpto = html.json()
+	return xpto["data"]["rows"]
+
 
 def limpa_pega(arquivo_json):
 	lista_compara = []
@@ -63,63 +67,63 @@ def limpa_pega(arquivo_json):
 #importando csv e transformando em dicionário
 
 def csv_import(base_k, table_n):
-    from airtable import Airtable
-    base_key = base_k
-    table_name = table_n
-    airtable = Airtable(base_key, table_name, api_key=airtable_api)
-    records = airtable.get_all()
-    base_de_relatorio = []
-    for v in records:
-        base_de_relatorio.append(v['fields']['publicacao'])
+	from airtable import Airtable
+	base_key = base_k
+	table_name = table_n
+	airtable = Airtable(base_key, table_name, api_key=airtable_api)
+	records = airtable.get_all()
+	base_de_relatorio = []
+	for v in records:
+		base_de_relatorio.append(v['fields']['publicacao'])
 
-    return base_de_relatorio
+	return base_de_relatorio
 
 
 #adicionar linha no Airtable
 def adicionar_linha(novos_dados):
-    airtable_destino_api_url = airtable_fonte_api_url
-    headers = {"Authorization": f'Bearer {airtable_api}'}
-    new_content = {"fields": {"publicacao": novos_dados}}
-    s = requests.post(airtable_destino_api_url, json=new_content, headers=headers)
+	airtable_destino_api_url = airtable_fonte_api_url
+	headers = {"Authorization": f'Bearer {airtable_api}'}
+	new_content = {"fields": {"publicacao": novos_dados}}
+	s = requests.post(airtable_destino_api_url, json=new_content, headers=headers)
 
 
 def novidade(base_de_relatorio, lista_compara):
-    novidade = []
-    for item in lista_compara:
-        if item in base_de_relatorio:
-            pass
-        else:
-            novidade.append(item)
-            adicionar_linha(item)
-    return novidade
+	novidade = []
+	for item in lista_compara:
+		if item in base_de_relatorio:
+			pass
+		else:
+			novidade.append(item)
+			adicionar_linha(item)
+	return novidade
 
 def enviar_email(novidade, textos=""):
-    if novidade == []:
-        pass
-    else:
-        subject = 'Relatorio disponivel no site do Imea'
-        msg = 'Subject:{}\n\nSeguem relatórios disponíveis:\n\n\n'.format(subject)
-        for linha in novidade:
-            msg+= f"Relatório {linha.split(' | ')[0]} está disponível. http://www.imea.com.br/upload/publicacoes/arquivos/{linha.split(' | ')[1]}\n"
-        
-        if textos == "":
-            pass
-        else:
-            msg += "\n\n"
-            msg += "Textos automatizados (conferir com tabela!):\n\n\n"
-            msg += textos
-            
-        gmail_sender = 'cfc.jornalista@gmail.com'
+	if novidade == []:
+		pass
+	else:
+		subject = 'Relatorio disponivel no site do Imea'
+		msg = 'Subject:{}\n\nSeguem relatórios disponíveis:\n\n\n'.format(subject)
+		for linha in novidade:
+			msg+= f"Relatório {linha.split(' | ')[0]} está disponível. http://www.imea.com.br/upload/publicacoes/arquivos/{linha.split(' | ')[1]}\n"
+		
+		if textos == "":
+			pass
+		else:
+			msg += "\n\n"
+			msg += "Textos automatizados (conferir com tabela!):\n\n\n"
+			msg += textos
+			
+		gmail_sender = 'cfc.jornalista@gmail.com'
 
-        server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
-        server.login(gmail_acc, gmail_pass)
+		server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+		server.login(gmail_acc, gmail_pass)
 
-        para = os.environ.get('DESTINO_EMAIL')
+		para = os.environ.get('DESTINO_EMAIL')
 
-        corpo = msg.encode('utf8')
-        server.sendmail(gmail_sender, para.split(","), corpo)
+		corpo = msg.encode('utf8')
+		server.sendmail(gmail_sender, para.split(","), corpo)
 
-        server.quit()
+		server.quit()
 
 
 def main():
@@ -151,24 +155,23 @@ def main():
 	#Relatórios específicos 
 
 	dia = dia_semana()
-	if dia == 7:
+	if dia == 0:
 		import pega_texto_colheita_soja
 		
 		#colheita de soja
-        data = get_data(colheita_soja[0], colheita_soja[1])
-        lista_compara = limpa_pega(data)
-        base_de_relatorio = csv_import(base_k, table_n)
-        relatorios_novos = novidade(base_de_relatorio, lista_compara)
-        textos = ""
-        try:
-            for item in relatorios_novos:
-                url_tabela = item.split(" | ")[1]
-                titulo, text = pega_texto_colheita_soja.go_getIt(url_tabela)
-                textos += titulo
-                textos += text
-        except:
-            pass
-        e_mail = enviar_email(relatorios_novos, textos)
+		data = get_data(colheita_soja[0], colheita_soja[1])
+		lista_compara = limpa_pega(data)
+		base_de_relatorio = csv_import(base_k, table_n)
+		relatorios_novos = novidade(base_de_relatorio, lista_compara)
+		textos = ""
+
+		for item in relatorios_novos:
+			url_tabela = item.split(" | ")[1]
+			titulo, text = pega_texto_colheita_soja.go_getIt(url_tabela)
+			textos += titulo
+			textos += text
+
+		e_mail = enviar_email(relatorios_novos, textos)
 
 		#colheita de milho
 		data = get_data(colheita_milho[0], colheita_milho[1])
@@ -229,5 +232,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
-
+	main()
