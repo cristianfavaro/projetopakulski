@@ -28,7 +28,6 @@ openpyxl==2.4.9
 pathlib==1.0.1
 pathlib2==2.3.0
 pbr==3.1.1
-pdfminer==20140328
 pdfminer.six==20170720
 pendulum==1.4.1
 pew==1.1.2
