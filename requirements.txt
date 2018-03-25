@@ -48,7 +48,7 @@ pytzdata==2018.3
 pyzmq==16.0.3
 requests==2.18.4
 requests-oauthlib==0.8.0
-rows==0.3.2.dev0
+git+https://github.com/turicas/rows.git@feature/plugin-pdf
 scandir==1.6
 shutilwhich==1.1.0
 simplegeneric==0.8.1
