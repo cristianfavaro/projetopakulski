@@ -151,7 +151,7 @@ def main():
 	#Relatórios específicos 
 
 	dia = dia_semana()
-	if dia == 5:
+	if dia == 7:
 		import pega_texto_colheita_soja
 		
 		#colheita de soja
