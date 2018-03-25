@@ -165,13 +165,16 @@ def main():
 		relatorios_novos = novidade(base_de_relatorio, lista_compara)
 		textos = ""
 
-		for item in relatorios_novos:
-			url_tabela = item.split(" | ")[1]
-			titulo, text = pega_texto_colheita_soja.go_getIt(url_tabela)
-			textos += titulo
-			textos += text
-
+		try:
+			for item in relatorios_novos:
+				url_tabela = item.split(" | ")[1]
+				titulo, text = pega_texto_colheita_soja.go_getIt(url_tabela)
+				textos += titulo
+				textos += text
+		except:
+			pass
 		e_mail = enviar_email(relatorios_novos, textos)
+
 
 		#colheita de milho
 		data = get_data(colheita_milho[0], colheita_milho[1])
