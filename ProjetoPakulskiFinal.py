@@ -155,10 +155,11 @@ def main():
 	#Relatórios específicos 
 
 	dia = dia_semana()
-	if dia == 0:
-		import pega_texto_colheita_soja
+	if dia == 5:
 		
 		#colheita de soja
+		import pega_texto_colheita_soja
+		
 		data = get_data(colheita_soja[0], colheita_soja[1])
 		lista_compara = limpa_pega(data)
 		base_de_relatorio = csv_import(base_k, table_n)
@@ -174,6 +175,8 @@ def main():
 		except:
 			pass
 		e_mail = enviar_email(relatorios_novos, textos)
+
+		del pega_texto_colheita_soja
 
 
 		#colheita de milho
@@ -198,11 +201,26 @@ def main():
 		e_mail = enviar_email(relatorios_novos)
 
 		#semeadura de milho
+		import pega_texto_plantio_milho
+
 		data = get_data(semeadura_milho[0], semeadura_milho[1])
 		lista_compara = limpa_pega(data)
 		base_de_relatorio = csv_import(base_k, table_n)
 		relatorios_novos = novidade(base_de_relatorio, lista_compara)
-		e_mail = enviar_email(relatorios_novos)
+		textos = ""
+
+		try:
+			for item in relatorios_novos:
+				url_tabela = item.split(" | ")[1]
+				titulo, text = pega_texto_plantio_milho.go_getIt(url_tabela)
+				textos += titulo
+				textos += text			
+		except:
+			pass	
+
+		e_mail = enviar_email(relatorios_novos, textos)
+
+		del pega_texto_plantio_milho
 
 		#semeadura de algodão
 		data = get_data(semeadura_algodao[0], semeadura_algodao[1])
