@@ -12,8 +12,10 @@ from dotenv import find_dotenv, load_dotenv
 load_dotenv(find_dotenv())
 
 airtable_api = os.environ.get('AIRTABLE_KEY')
-gmail_acc = os.environ.get('G-MAIL_ACC')
-gmail_pass = os.environ.get('G-MAIL_KEY')
+
+
+mailgun_acc = os.environ.get('MAILGUN_ACC')
+mailgun_pass = os.environ.get('MAILGUN_KEY')
 
 airtable_fonte_api_url = os.environ.get('AIR_FONTE_URL')
 base_k = os.environ.get('BASE')
@@ -112,16 +114,18 @@ def enviar_email(novidade, textos=""):
 			msg += "\n\n"
 			msg += "Textos automatizados (conferir com tabela!):\n\n\n"
 			msg += textos
-			
-		gmail_sender = 'cfc.jornalista@gmail.com'
 
-		server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
-		server.login(gmail_acc, gmail_pass)
+		msg += "\n\n\nProjeto Pakulski\nAgência Estado / O Estado de S.Paulo\n\n"
+			
+		mailgun_sender = 'noreply@cristianfavaro.com.br'
+
+		server = smtplib.SMTP_SSL('smtp.mailgun.org', 465)
+		server.login(mailgun_acc, mailgun_pass)
 
 		para = os.environ.get('DESTINO_EMAIL')
 
 		corpo = msg.encode('utf8')
-		server.sendmail(gmail_sender, para.split(","), corpo)
+		server.sendmail(mailgun_sender, para.split(","), corpo)
 
 		server.quit()
 
@@ -229,7 +233,7 @@ def main():
 		relatorios_novos = novidade(base_de_relatorio, lista_compara)
 		e_mail = enviar_email(relatorios_novos)
 
-	if dia == 1:
+	if dia == 4:
 		#boletim de soja 
 		data = get_data(boletim_soja[0], boletim_soja[1])
 		lista_compara = limpa_pega(data)
