@@ -233,7 +233,7 @@ def main():
 		relatorios_novos = novidade(base_de_relatorio, lista_compara)
 		e_mail = enviar_email(relatorios_novos)
 
-	if dia == 4:
+	if dia == 1:
 		#boletim de soja 
 		data = get_data(boletim_soja[0], boletim_soja[1])
 		lista_compara = limpa_pega(data)
