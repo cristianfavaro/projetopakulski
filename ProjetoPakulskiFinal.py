@@ -46,7 +46,7 @@ estimativa_safra_algodao = 1, 9
 
 def dia_semana():
 	today = pendulum.today()
-	dia_semana = today.day_of_week 
+	dia_semana = today.day_of_week
 	return dia_semana
 
 
@@ -54,7 +54,7 @@ def dia_semana():
 
 def get_data(cat, sub):
 
-	
+
 	html = requests.get(f"http://www.imea.com.br/imea-site/relatorios-mercado-detalhe/buscarPublicacoes?categoria={cat}&subcategoria={sub}&page=1")
 	xpto = html.json()
 	return xpto["data"]["rows"]
@@ -107,7 +107,7 @@ def enviar_email(novidade, textos=""):
 		msg = 'Subject:{}\n\nSeguem relatórios disponíveis:\n\n\n'.format(subject)
 		for linha in novidade:
 			msg+= f"Relatório {linha.split(' | ')[0]} está disponível. http://www.imea.com.br/upload/publicacoes/arquivos/{linha.split(' | ')[1]}\n"
-		
+
 		if textos == "":
 			pass
 		else:
@@ -116,7 +116,7 @@ def enviar_email(novidade, textos=""):
 			msg += textos
 
 		msg += "\n\n\nProjeto Pakulski\nAgência Estado / O Estado de S.Paulo\n\n"
-			
+
 		mailgun_sender = 'noreply@cristianfavaro.com.br'
 
 		server = smtplib.SMTP_SSL('smtp.mailgun.org', 465)
@@ -131,129 +131,134 @@ def enviar_email(novidade, textos=""):
 
 
 def main():
-	#pesquisando todos os dias 
+	import ronda_concorentes
 
-	#Estimativa safra de soja
-	data = get_data(estimativa_safra_soja[0], estimativa_safra_soja[1])
-	lista_compara = limpa_pega(data)
-	base_de_relatorio = csv_import(base_k, table_n)
-	relatorios_novos = novidade(base_de_relatorio, lista_compara)
-	e_mail = enviar_email(relatorios_novos)
-
-	#Estimativa safra de milho
-
-	data = get_data(estimativa_safra_milho[0], estimativa_safra_milho[1])
-	lista_compara = limpa_pega(data)
-	base_de_relatorio = csv_import(base_k, table_n)
-	relatorios_novos = novidade(base_de_relatorio, lista_compara)
-	e_mail = enviar_email(relatorios_novos)
-
-	#Estimativa safra de algodão
-
-	data = get_data(estimativa_safra_algodao[0], estimativa_safra_algodao[1])
-	lista_compara = limpa_pega(data)
-	base_de_relatorio = csv_import(base_k, table_n)
-	relatorios_novos = novidade(base_de_relatorio, lista_compara)
-	e_mail = enviar_email(relatorios_novos)
-
-	#Relatórios específicos 
-
-	dia = dia_semana()
-	if dia == 5:
-		
-		#colheita de soja
-		import pega_texto_colheita_soja
-		
-		data = get_data(colheita_soja[0], colheita_soja[1])
-		lista_compara = limpa_pega(data)
-		base_de_relatorio = csv_import(base_k, table_n)
-		relatorios_novos = novidade(base_de_relatorio, lista_compara)
-		textos = ""
-
-		try:
-			for item in relatorios_novos:
-				url_tabela = item.split(" | ")[1]
-				titulo, text = pega_texto_colheita_soja.go_getIt(url_tabela)
-				textos += titulo
-				textos += text
-		except:
-			pass
-		e_mail = enviar_email(relatorios_novos, textos)
-
-		del pega_texto_colheita_soja
+	ronda_concorentes.main()
+	#pesquisando todos os dias
 
 
-		#colheita de milho
-		data = get_data(colheita_milho[0], colheita_milho[1])
-		lista_compara = limpa_pega(data)
-		base_de_relatorio = csv_import(base_k, table_n)
-		relatorios_novos = novidade(base_de_relatorio, lista_compara)
-		e_mail = enviar_email(relatorios_novos)
 
-		#colheita de algodão
-		data = get_data(colheita_algodao[0], colheita_algodao[1])
-		lista_compara = limpa_pega(data)
-		base_de_relatorio = csv_import(base_k, table_n)
-		relatorios_novos = novidade(base_de_relatorio, lista_compara)
-		e_mail = enviar_email(relatorios_novos)
-
-		#semeadura de soja
-		data = get_data(semeadura_soja[0], semeadura_soja[1])
-		lista_compara = limpa_pega(data)
-		base_de_relatorio = csv_import(base_k, table_n)
-		relatorios_novos = novidade(base_de_relatorio, lista_compara)
-		e_mail = enviar_email(relatorios_novos)
-
-		#semeadura de milho
-		import pega_texto_plantio_milho
-
-		data = get_data(semeadura_milho[0], semeadura_milho[1])
-		lista_compara = limpa_pega(data)
-		base_de_relatorio = csv_import(base_k, table_n)
-		relatorios_novos = novidade(base_de_relatorio, lista_compara)
-		textos = ""
-
-		try:
-			for item in relatorios_novos:
-				url_tabela = item.split(" | ")[1]
-				titulo, text = pega_texto_plantio_milho.go_getIt(url_tabela)
-				textos += titulo
-				textos += text			
-		except:
-			pass	
-
-		e_mail = enviar_email(relatorios_novos, textos)
-
-		del pega_texto_plantio_milho
-
-		#semeadura de algodão
-		data = get_data(semeadura_algodao[0], semeadura_algodao[1])
-		lista_compara = limpa_pega(data)
-		base_de_relatorio = csv_import(base_k, table_n)
-		relatorios_novos = novidade(base_de_relatorio, lista_compara)
-		e_mail = enviar_email(relatorios_novos)
-
-	if dia == 1:
-		#boletim de soja 
-		data = get_data(boletim_soja[0], boletim_soja[1])
-		lista_compara = limpa_pega(data)
-		base_de_relatorio = csv_import(base_k, table_n)
-		relatorios_novos = novidade(base_de_relatorio, lista_compara)
-		e_mail = enviar_email(relatorios_novos)
-
-		#boletim de milho 
-		data = get_data(boletim_milho[0], boletim_milho[1])
-		lista_compara = limpa_pega(data)
-		base_de_relatorio = csv_import(base_k, table_n)
-		relatorios_novos = novidade(base_de_relatorio, lista_compara)
-		e_mail = enviar_email(relatorios_novos)
-
-		#boletim de algodão
-		data = get_data(boletim_algodao[0], boletim_algodao[1])
-		lista_compara = limpa_pega(data)
-		base_de_relatorio = csv_import(base_k, table_n)
-		relatorios_novos = novidade(base_de_relatorio, lista_compara)
-		e_mail = enviar_email(relatorios_novos)
+	# #Estimativa safra de soja
+	# data = get_data(estimativa_safra_soja[0], estimativa_safra_soja[1])
+	# lista_compara = limpa_pega(data)
+	# base_de_relatorio = csv_import(base_k, table_n)
+	# relatorios_novos = novidade(base_de_relatorio, lista_compara)
+	# e_mail = enviar_email(relatorios_novos)
+	#
+	# #Estimativa safra de milho
+	#
+	# data = get_data(estimativa_safra_milho[0], estimativa_safra_milho[1])
+	# lista_compara = limpa_pega(data)
+	# base_de_relatorio = csv_import(base_k, table_n)
+	# relatorios_novos = novidade(base_de_relatorio, lista_compara)
+	# e_mail = enviar_email(relatorios_novos)
+	#
+	# #Estimativa safra de algodão
+	#
+	# data = get_data(estimativa_safra_algodao[0], estimativa_safra_algodao[1])
+	# lista_compara = limpa_pega(data)
+	# base_de_relatorio = csv_import(base_k, table_n)
+	# relatorios_novos = novidade(base_de_relatorio, lista_compara)
+	# e_mail = enviar_email(relatorios_novos)
+	#
+	# #Relatórios específicos
+	#
+	# dia = dia_semana()
+	# if dia == 5:
+	#
+	# 	#colheita de soja
+	# 	import pega_texto_colheita_soja
+	#
+	# 	data = get_data(colheita_soja[0], colheita_soja[1])
+	# 	lista_compara = limpa_pega(data)
+	# 	base_de_relatorio = csv_import(base_k, table_n)
+	# 	relatorios_novos = novidade(base_de_relatorio, lista_compara)
+	# 	textos = ""
+	#
+	# 	try:
+	# 		for item in relatorios_novos:
+	# 			url_tabela = item.split(" | ")[1]
+	# 			titulo, text = pega_texto_colheita_soja.go_getIt(url_tabela)
+	# 			textos += titulo
+	# 			textos += text
+	# 	except:
+	# 		pass
+	# 	e_mail = enviar_email(relatorios_novos, textos)
+	#
+	# 	del pega_texto_colheita_soja
+	#
+	#
+	# 	#colheita de milho
+	# 	data = get_data(colheita_milho[0], colheita_milho[1])
+	# 	lista_compara = limpa_pega(data)
+	# 	base_de_relatorio = csv_import(base_k, table_n)
+	# 	relatorios_novos = novidade(base_de_relatorio, lista_compara)
+	# 	e_mail = enviar_email(relatorios_novos)
+	#
+	# 	#colheita de algodão
+	# 	data = get_data(colheita_algodao[0], colheita_algodao[1])
+	# 	lista_compara = limpa_pega(data)
+	# 	base_de_relatorio = csv_import(base_k, table_n)
+	# 	relatorios_novos = novidade(base_de_relatorio, lista_compara)
+	# 	e_mail = enviar_email(relatorios_novos)
+	#
+	# 	#semeadura de soja
+	# 	data = get_data(semeadura_soja[0], semeadura_soja[1])
+	# 	lista_compara = limpa_pega(data)
+	# 	base_de_relatorio = csv_import(base_k, table_n)
+	# 	relatorios_novos = novidade(base_de_relatorio, lista_compara)
+	# 	e_mail = enviar_email(relatorios_novos)
+	#
+	# 	#semeadura de milho
+	# 	import pega_texto_plantio_milho
+	#
+	# 	data = get_data(semeadura_milho[0], semeadura_milho[1])
+	# 	lista_compara = limpa_pega(data)
+	# 	base_de_relatorio = csv_import(base_k, table_n)
+	# 	relatorios_novos = novidade(base_de_relatorio, lista_compara)
+	# 	textos = ""
+	#
+	# 	try:
+	# 		for item in relatorios_novos:
+	# 			url_tabela = item.split(" | ")[1]
+	# 			titulo, text = pega_texto_plantio_milho.go_getIt(url_tabela)
+	# 			textos += titulo
+	# 			textos += text
+	# 	except:
+	# 		pass
+	#
+	# 	e_mail = enviar_email(relatorios_novos, textos)
+	#
+	# 	del pega_texto_plantio_milho
+	#
+	# 	#semeadura de algodão
+	# 	data = get_data(semeadura_algodao[0], semeadura_algodao[1])
+	# 	lista_compara = limpa_pega(data)
+	# 	base_de_relatorio = csv_import(base_k, table_n)
+	# 	relatorios_novos = novidade(base_de_relatorio, lista_compara)
+	# 	e_mail = enviar_email(relatorios_novos)
+	#
+	# if dia == 1:
+	# 	#boletim de soja
+	# 	data = get_data(boletim_soja[0], boletim_soja[1])
+	# 	lista_compara = limpa_pega(data)
+	# 	base_de_relatorio = csv_import(base_k, table_n)
+	# 	relatorios_novos = novidade(base_de_relatorio, lista_compara)
+	# 	e_mail = enviar_email(relatorios_novos)
+	#
+	# 	#boletim de milho
+	# 	data = get_data(boletim_milho[0], boletim_milho[1])
+	# 	lista_compara = limpa_pega(data)
+	# 	base_de_relatorio = csv_import(base_k, table_n)
+	# 	relatorios_novos = novidade(base_de_relatorio, lista_compara)
+	# 	e_mail = enviar_email(relatorios_novos)
+	#
+	# 	#boletim de algodão
+	# 	data = get_data(boletim_algodao[0], boletim_algodao[1])
+	# 	lista_compara = limpa_pega(data)
+	# 	base_de_relatorio = csv_import(base_k, table_n)
+	# 	relatorios_novos = novidade(base_de_relatorio, lista_compara)
+	# 	e_mail = enviar_email(relatorios_novos)
 
 
 if __name__ == '__main__':
